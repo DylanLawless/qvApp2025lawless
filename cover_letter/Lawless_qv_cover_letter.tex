@@ -1,0 +1,48 @@
+\documentclass[12pt,a4paper]{letter}
+\usepackage[utf8]{inputenc}
+\usepackage{microtype}
+\usepackage{amsmath, amsfonts, amssymb}
+\usepackage[backend=bibtex, style=authoryear, natbib=true, sorting=nyt]{biblatex} 
+\usepackage[colorlinks=true]{hyperref}
+\hypersetup{
+    linkcolor=blue,         % color of internal links
+    citecolor=black,         % color of citation links
+    urlcolor=blue           % color of URL links
+}
+\usepackage{filecontents}
+\usepackage{geometry}
+\geometry{left=3cm, top=2cm, right=3cm, bottom=2cm} 
+
+\address{Dylan Lawless@kispi.uzh.ch\\
+Department of Intensive\\
+Care and Neonatology,\\
+University Children's\\
+Hospital Zürich,\\
+University of Zürich.
+}
+\signature{Dylan Lawless, PhD.} 
+
+\begin{document} 
+\begin{letter}{Dear Editor,}
+
+Re: Submission of manuscript entitled\\ ``Application of qualifying variants for genomic analysis''
+
+\opening{}
+
+I am pleased to submit our manuscript entitled ``Application of qualifying variants for genomic analysis'' for consideration as an Application Note in \textit{Bioinformatics}, under the category of Genome Analysis.
+
+Qualifying variants (QVs) are a core component of most genomic analyses, but they are often treated informally as simple filters. This work presents the first formalisation of QVs as modular and portable units. QVs can now be defined separately from code and pipeline settings, and reused across tools and analyses. By treating QVs as standalone entities, our framework improves clarity, reproducibility, and integration in both clinical and research settings.
+
+The approach is already in use in collaborative projects. It supports complex, multi-part pipelines and enables advanced statistical genomics methods by allowing QVs to be precisely defined, referenced, and modelled within analytical workflows.
+
+
+\closing{Yours sincerely,}
+
+\end{letter}
+\end{document}
+
+%\cc{Cclist} 
+%\ps{adding a postscript} 
+%\encl{list of enclosed material} 
+%\vfill
+%\printbibliography[heading=none]
