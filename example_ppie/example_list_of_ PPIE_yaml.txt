@@ -1,0 +1,72 @@
+PPIE_records:
+  - id: actionable_only
+    raw_text: >
+      "Please only tell me about genetic results where something can be done,
+      like a treatment, prevention, or regular checks. I don’t want to get results
+      that I can’t act on."
+    structured: 
+      actionable_only: true
+
+  - id: exclude_unrelated_findings
+    raw_text: >
+      "I do not want to hear about extra findings that are not related to my
+      current condition, unless they are directly useful for my health."
+    structured:
+      include_secondary_findings: false
+
+  - id: carrier_status_interest
+    raw_text: >
+      "I would like to know if I carry something that could affect my children
+      in the future, even if it does not affect me now."
+    structured:
+      carrier_status_interest: true
+
+  - id: psychological_impact
+    raw_text: >
+      "Please do not give me results that could cause unnecessary worry if nothing
+      can be done about them. If in doubt, I would prefer the doctor to decide
+      what is important."
+    structured:
+      psychological_impact: doctor_to_decide
+
+  - id: family_context
+    raw_text: >
+      "In my family, my brother had similar symptoms, and my mother had unexplained
+      health problems. Please take this into account when looking at my results."
+    structured:
+      family_history:
+        - relation: "Brother"
+          condition: "Similar symptoms"
+        - relation: "Mother"
+          condition: "Unexplained health problems"
+
+  - id: reporting_format
+    raw_text: >
+      "I would like the results in simple, everyday language that I can understand,
+      with the option to also get a detailed medical report if needed."
+    structured:
+      reporting_format: both
+
+  - id: epilepsy_case
+    raw_text: >
+      "Our child has epilepsy. We have tried levetiracetam and valproate, which were
+      not effective. Side effects included severe sleep disturbance and mood changes.
+      Ketogenic diet was very effective in reducing seizure frequency. Please consider
+      this when matching results to treatment options. There is a family history:
+      the child’s uncle also had seizures in childhood that improved with age."
+    structured:
+      condition: "Epilepsy"
+      treatments_tried:
+        - name: "Levetiracetam"
+          outcome: "Not effective"
+          side_effects: ["Sleep disturbance", "Mood changes"]
+        - name: "Valproate"
+          outcome: "Not effective"
+          side_effects: ["Sleep disturbance", "Mood changes"]
+      lifestyle_interventions:
+        - name: "Ketogenic diet"
+          outcome: "Very effective in reducing seizure frequency"
+      family_history:
+        - relation: "Uncle"
+          condition: "Childhood seizures"
+          course: "Improved with age"

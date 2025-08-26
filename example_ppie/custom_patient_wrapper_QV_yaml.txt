@@ -1,0 +1,43 @@
+qv_set_id: gv_patient1_2025_08_21
+version: "1.0.0"
+kind: patient_wrapper
+visibility: private
+
+consent:
+  id: CONSENT_001
+  scope: ["QV_SO_sf", "QV_DISEASE_X_PANEL"]
+  created: "2025-08-21"
+
+PPIE_records:
+  - id: actionable_only
+    raw_text: >
+      Please only tell me about genetic results where something can be done,
+      like a treatment, prevention, or regular checks. I don’t want to get results
+      that I can’t act on.
+    structured:
+      actionable_only: true
+
+imports:
+  - qv_set_id: acmg_sf_v3.3
+    version: "3.3"
+    source_uri: "https://example.org/qv_database/acmg_sf_v3.3.yaml"
+    shasum256: "PUT_HASH"
+    signature: "PUT_SIGNATURE"
+    required: true
+  - qv_set_id: disease_x_panel_v1
+    version: "1.0"
+    source_uri: "https://example.org/qv_database/disease_x_panel_v1.yaml"
+    shasum256: "PUT_HASH"
+    signature: "PUT_SIGNATURE"
+    required: true
+
+merge:
+  mode: union
+  priority:
+    - disease_x_panel_v1
+    - acmg_sf_v3.3
+
+provenance:
+  created: "2025-08-21"
+  created_by: "genomic_qv_system"
+  pipeline_container_digest: "sha256:PUT_DIGEST"

@@ -273,14 +273,6 @@ acmg_criteria.yaml
 \end{verbatim}
 \end{tcolorbox}
 
-\subsection{Usage in a GWAS validation study}
-
-We next applied the \ac{qv} criteria framework to a genome-wide association study using HapMap3 Phase 3 (R3) consensus genotypes. The analysis was performed twice: first as a conventional hard coded pipeline (Phase~1), and second using an externalised \ac{qv} YAML configuration file (Phase~2). Both pipelines used the same data and processing stages, ensuring comparability.  
-
-The hard coded implementation embedded all filtering and analysis thresholds directly in the bash scripts, while the QV-based implementation sourced them from the file ``qv\_gwas\_common\_v1\_20250826.yaml'' (see \url{https://doi.org/10.5281/zenodo.XXXXXXX}). This QV set defines common GWAS thresholds: restriction to autosomal, biallelic SNPs; minimum sample call rate of $95\%$; variant call rate of $95\%$; minor allele frequency $\geq 1\%$; and Hardy–Weinberg equilibrium $p \geq 1\times10^{-6}$. After quality control, variants were LD-pruned and principal components (PC1–PC10) were computed, with sex included as an additional covariate. Logistic regression under an additive model was then performed with PLINK.  
-
-The outputs of the two pipelines were captured and compared across each main PLINK stage: step1 (autosomal biallelic SNPs), step2 (sample call rate), step3 (variant call rate), step4 (minor allele frequency), step5 (Hardy–Weinberg equilibrium), and step6 (association results). Manhattan plots, PCA plots, and \texttt{md5} checksums were used to confirm exact reproducibility between the hard coded and QV-driven analyses.
-
 
 \section{Results}
 \subsection{Validation Case Study}
@@ -305,27 +297,6 @@ the outputs from both methods were identical, demonstrating a 100\% match. This 
     (B) Validation case study using an \ac{acmg} criteria subset, demonstrating a 100\% match between manually encoded and standalone YAML-based \ac{qv} (\texttt{qv\_files/acmg\_criteria.yaml}) for assigning pathogenicity scores.}
     \label{fig:qv_pipeline_with_file_vcurrent_guru_case_study_result}
 \end{figure}
-
-
-\subsection{Validation in a common variant GWAS}
-
-we dont need redundant repetition of values and steps 1-6. just leave it in methods. 
-
-We validated the \ac{qv} approach in a standard HapMap3 Phase 3 GWAS by running two equivalent analyses: a hard coded pipeline and a \ac{qv} YAML driven pipeline that externalised all quality control and analysis thresholds. Both used autosomal biallelic \ac{snp}s with sample call rate $\geq 95\%$, variant call rate $\geq 95\%$, minor allele frequency $\geq 1\%$, and Hardy–Weinberg equilibrium $p \geq 1\times10^{-6}$, followed by LD pruning and inclusion of sex and PC1-PC10 as covariates in logistic regression. As shown in \textbf{Figure~\ref{fig:qv_gwas_validation}} panels A and B, the Manhattan and PCA plots were indistinguishable between methods. Panel C shows identical \texttt{md5} checksums for the main PLINK outputs across stages: step 1 (autosomal biallelic SNPs), step 2 (sample call rate), step 3 (variant call rate), step 4 (minor allele frequency), step 5 (Hardy–Weinberg equilibrium), and step 6 (association results). These results demonstrate exact reproducibility of the hard coded workflow using a shareable \ac{qv} criteria file, confirming that \ac{qv} parameterisation preserves analytic intent while improving clarity and reuse.
-
-\begin{figure}[!h]
-\centering
-\includegraphics[width=\textwidth]{./images/hapmap_gwas_validation.pdf}
-    \caption{
-Reproducible GWAS using QV parameterisation.
-(A) GWAS of simulated binary phenotypes in HapMap3 Phase 3 (R3) using a hard-coded pipeline. Shown are the Manhattan plot of logistic regression results (left) and the correction for population structure with principal component analysis (PC1 vs PC2, right).
-(B) Identical GWAS using a QV YAML configuration file to supply quality-control and analysis thresholds. Manhattan and PCA results are indistinguishable from panel A.
-(C) Verification of reproducibility. MD5 checksums of the main PLINK outputs — step1 (autosomal, biallelic SNPs), step2 (sample call rate), step3 (variant call rate), step4 (minor allele frequency), step5 (Hardy–Weinberg equilibrium), and step6 (association results) — are identical between phases A and B. The QV file encodes these thresholds (sample call rate $\geq$95\%, variant call rate $\geq$95\%, MAF $\geq$1\%, HWE p $\geq$1e-6, autosomal biallelic SNPs only) together with covariates (sex and PC1-PC10) and logistic regression settings. This demonstrates that a shareable QV file reproduces hard-coded pipelines exactly while improving transparency and reusability.}
-    \label{fig:hapmap_gwas_validation}
-\end{figure}
-
-
-
 
 \subsection{Implications}
 % Framework: Highlight the clinical relevance and benefits.
