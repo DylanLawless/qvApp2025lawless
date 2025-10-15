@@ -220,7 +220,7 @@ Result 1 = Cohort-level association signal (e.g. variant P-value).\\
 Result 2 = Single variant report per patient.
 \end{tcolorbox}
 
-\subsection{Usage in a Validation Study}
+\subsection{Usage in a rare disease Validation Study}
 
 In a validation study, we demonstrate the use of our \ac{qv} criteria framework 
 % achieve a 100\% match in criterion application when 
@@ -240,6 +240,20 @@ Additional details of the YAML criteria in this \ac{qv} set included definitions
 
 % Individual steps within the \ac{qv} criteria can be further classified for organisational purposes using simple labels such as ``QC'' and ``filter''. For example, filtering thresholds (e.g. allele frequency > 0.1 in a cohort, < 0.1 in gnomAD) may be applied directly to exclude variants, while annotation-based criteria (e.g. QC flags) might not remove variants outright but instead inform downstream analyses that integrate multiple \ac{qv} filters.
 
+% The following example of box 2 can be reproduced using the qv_builder.html with the prompt:
+% ```
+% criteria ACMG_PVS1 logic=and description="Null variants (IMPACT == HIGH) in genes where loss of function causes disease. Includes homozygous variants, compound heterozygous cases, or dominant inheritance. Warning to phase check compound heterozygosity."
+% criteria ACMG_PVS1 field=IMPACT operator="==" value=HIGH
+% criteria ACMG_PVS1 group=any_of:start
+% criteria ACMG_PVS1 field=genotype operator="==" value=2
+% criteria ACMG_PVS1 field=Inheritance operator="==" value=AD
+% criteria ACMG_PVS1 field=comp_het_flag operator="==" value=1
+% criteria ACMG_PVS1 group=any_of:end
+% 
+% ```
+% which means:
+% IMPACT == HIGH and (genotype == 2 or Inheritance == AD or (count by sample,SYMBOL >= 2 and comp_het_flag == 1))
+
 \begin{tcolorbox}[
     colback=white!0,
     colframe=black,
@@ -249,22 +263,30 @@ Additional details of the YAML criteria in this \ac{qv} set included definitions
     title=\textbf{\refstepcounter{myboxcounter}\label{box:acmg_criteria_yaml}Box \themyboxcounter: qv\_files/acmg\_criteria.yaml}
 ]
 \begin{verbatim}
-qv_set_id: acmg_sf_v3.2
+qv_set_id: qv_acmg_svnindel
+criteria:
+  ACMG_PVS1:
+    conditions:
+      - field: IMPACT
+        operator: '=='
+        value: HIGH
+      - group: any_of:start
+      - field: genotype
+        operator: '=='
+        value: 2
+      - field: Inheritance
+        operator: '=='
+        value: AD
+      - field: comp_het_flag
+        operator: '=='
+        value: 1
+      - group: any_of:end
+    description: 'Null variants (IMPACT == HIGH) in genes where 
+    loss of function causes disease. Includes homozygous variants, 
+    compound heterozygous cases, or dominant inheritance.
+    Warning to phase check compound heterozygosity.'
+    logic: and
 
-acmg_pvs1:
-  description_technical: >
-    Null variants (IMPACT = HIGH) in genes where 
-    loss-of-function causes disease.
-    Includes homozygous variants, dominant inheritance, 
-    and compound heterozygous cases.
-    Compound heterozygosity is considered when both 
-    variants are HIGH impact. WARNING: Not phase checked.
-  logic: "or"
-  conditions:
-    - condition:
-        field: IMPACT
-        value: "HIGH"
-        operator: "=="
 ...
 shasum -a 256 acmg_criteria.yaml | fold -w 32
 d91fde41a5fff48631adecba38773d61
@@ -272,6 +294,23 @@ d91fde41a5fff48631adecba38773d61
 acmg_criteria.yaml
 \end{verbatim}
 \end{tcolorbox}
+
+% qv_set_id: acmg_sf_v3.2
+% criteria:
+%   acmg_pvs1:
+%     description_technical: >
+%       Null variants (IMPACT = HIGH) in genes where 
+%       loss-of-function causes disease.
+%       Includes homozygous variants, dominant inheritance, 
+%       and compound heterozygous cases.
+%       Compound heterozygosity is considered when both 
+%       variants are HIGH impact. WARNING: Not phase checked.
+%     logic: "or"
+%     conditions:
+%       - condition:
+%           field: IMPACT
+%           value: "HIGH"
+%           operator: "=="
 
 \subsection{Usage in a GWAS validation study}
 
@@ -281,12 +320,15 @@ The hard coded implementation embedded all filtering and analysis thresholds dir
 
 The outputs of the two pipelines were captured and compared across each main PLINK stage: step1 (autosomal biallelic SNPs), step2 (sample call rate), step3 (variant call rate), step4 (minor allele frequency), step5 (Hardy–Weinberg equilibrium), and step6 (association results). Manhattan plots, PCA plots, and \texttt{md5} checksums were used to confirm exact reproducibility between the hard coded and QV-driven analyses.
 
+\subsection{Usage in a WGS validation study with GIAB and Exomiser}
+
+We validated the \ac{qv} approach on the Genome In A Bottle Chinese Trio (HG005-HG007, PRJNA200694, GRCh38 v4.2.1) using a two-phase trio pipeline that differs only in how parameters are provided: Phase 1 hard coded thresholds in scripts, while Phase 2 externalised the same thresholds in a \ac{qv} YAML file. Both phases applied identical \ac{qc} and study filters and additionally demonstrated gene-panel style analysis using the PanelAppRex paediatric disorders panel (panel\_486; 3{,}853 genes). The upstream configuration demonstrated a range of \ac{qv} settings used, including region restriction by BED overlap, site-level thresholds on QUAL and INFO/DP with computed site depth from per-sample FORMAT/DP if absent, per-sample thresholds on FORMAT/DP and FORMAT/GQ with exclusion of missing GT, and composite criteria that require either all samples to pass or at least one sample to pass. Upstream processing used \texttt{bcftools} for region filtering, tag filling, site depth range, and per-sample filters. The filtered trio \ac{vcf} was analysed with Exomiser using a trio \texttt{.ped} and no \ac{hpo}. 
 
 \section{Results}
-\subsection{Validation Case Study}
+\subsection{Validation rare disease case study}
 
 We validated our \ac{qv} protocol using \ac{acmg}-based criteria for a rare disease cohort of 940 individuals. 
-We then conducted the variant classification using two approaches: a conventional manual method with hard-coded criteria, and our new YAML-based implementation
+We then conducted the variant classification using two approaches: a conventional manual method with hard-coded criteria, and our new YAML-based implementation.
 As shown in \textbf{Figure \ref{fig:qv_pipeline_with_file_vcurrent_guru_case_study_result} (B)}, 
 the outputs from both methods were identical, demonstrating a 100\% match. This confirmed that our framework of a standalone, shareable, \ac{qv} criteria file can be imported and applied programmatically with equivalent accuracy, providing a reproducible resource that is adaptable across different pipelines and programming environments.
 
@@ -311,7 +353,7 @@ the outputs from both methods were identical, demonstrating a 100\% match. This 
 
 we dont need redundant repetition of values and steps 1-6. just leave it in methods. 
 
-We validated the \ac{qv} approach in a standard HapMap3 Phase 3 GWAS by running two equivalent analyses: a hard coded pipeline and a \ac{qv} YAML driven pipeline that externalised all quality control and analysis thresholds. Both used autosomal biallelic \ac{snp}s with sample call rate $\geq 95\%$, variant call rate $\geq 95\%$, minor allele frequency $\geq 1\%$, and Hardy–Weinberg equilibrium $p \geq 1\times10^{-6}$, followed by LD pruning and inclusion of sex and PC1-PC10 as covariates in logistic regression. As shown in \textbf{Figure~\ref{fig:qv_gwas_validation}} panels A and B, the Manhattan and PCA plots were indistinguishable between methods. Panel C shows identical \texttt{md5} checksums for the main PLINK outputs across stages: step 1 (autosomal biallelic SNPs), step 2 (sample call rate), step 3 (variant call rate), step 4 (minor allele frequency), step 5 (Hardy–Weinberg equilibrium), and step 6 (association results). These results demonstrate exact reproducibility of the hard coded workflow using a shareable \ac{qv} criteria file, confirming that \ac{qv} parameterisation preserves analytic intent while improving clarity and reuse.
+We validated the \ac{qv} approach in a standard HapMap3 Phase 3 GWAS by running two equivalent analyses: a hard coded pipeline and a \ac{qv} YAML driven pipeline that externalised all quality control and analysis thresholds. Both used autosomal biallelic \ac{snp}s with sample call rate $\geq 95\%$, variant call rate $\geq 95\%$, minor allele frequency $\geq 1\%$, and Hardy–Weinberg equilibrium $p \geq 1\times10^{-6}$, followed by LD pruning and inclusion of sex and PC1-PC10 as covariates in logistic regression. As shown in \textbf{Figure \ref{fig:hapmap_gwas_validation}} panels A and B, the Manhattan and PCA plots were indistinguishable between methods. Panel C shows identical \texttt{md5} checksums for the main PLINK outputs across stages: step 1 (autosomal biallelic SNPs), step 2 (sample call rate), step 3 (variant call rate), step 4 (minor allele frequency), step 5 (Hardy–Weinberg equilibrium), and step 6 (association results). These results demonstrate exact reproducibility of the hard coded workflow using a shareable \ac{qv} criteria file, confirming that \ac{qv} parameterisation preserves analytic intent while improving clarity and reuse.
 
 \begin{figure}[!h]
 \centering
@@ -324,7 +366,20 @@ Reproducible GWAS using QV parameterisation.
     \label{fig:hapmap_gwas_validation}
 \end{figure}
 
+\subsection{Validation in a WGS study with GIAB and Exomiser}
 
+We conducted the trio analysis using a standard filtering approach and the popular Exomiser tool for variant annotation and interpretation pipeline. Again we tested the conventional manual hard-coded criteria to our new YAML-based implementation
+
+Both phases produced identical outputs. Upstream file-level counts matched at each step and Exomiser annotation and filtering metrics were the same in both phases, resolving to the same candidate set and reported variants. 
+\textbf{Figure \ref{fig:qv_exomiser_validation} (A)}
+summarises upstream processing counts by file, \textbf{(B)} shows equality of Exomiser metrics, and \textbf{(C)} presents the key variant fields used for reporting. Together these results confirm that a shareable \ac{qv} file reproduces a hard coded workflow exactly while improving clarity and reuse on top of existing popular methods.
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\textwidth]{./images/qv_exomiser/exomiser_validation_bars_facet_metric.pdf}
+\caption{Validation of a trio Exomiser pipeline using \ac{qv} parameterisation. Panels A, B, and C correspond to upstream processing counts, downstream Exomiser metrics, and final variants detected, respectively.}
+\label{fig:qv_exomiser_validation}
+\end{figure}
 
 
 \subsection{Implications}

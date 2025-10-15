@@ -1,0 +1,8 @@
+
+criteria ACMG_PVS1 logic=and description="Null variants (IMPACT == HIGH) in genes where loss of function causes disease. Includes homozygous variants, compound heterozygous cases, or dominant inheritance. Warning to phase check compound heterozygosity."
+criteria ACMG_PVS1 field=IMPACT operator="==" value=HIGH
+criteria ACMG_PVS1 group=any_of:start
+criteria ACMG_PVS1 field=genotype operator="==" value=2
+criteria ACMG_PVS1 field=Inheritance operator="==" value=AD
+criteria ACMG_PVS1 field=comp_het_flag operator="==" value=1
+criteria ACMG_PVS1 group=any_of:end
