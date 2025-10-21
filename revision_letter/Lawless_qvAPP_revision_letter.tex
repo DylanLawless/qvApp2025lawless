@@ -1,0 +1,125 @@
+\documentclass[12pt,a4paper]{letter}
+\usepackage[utf8]{inputenc}
+\usepackage{microtype}
+\usepackage{amsmath, amsfonts, amssymb}
+\usepackage[backend=bibtex, style=authoryear, natbib=true, sorting=nyt]{biblatex} 
+\usepackage[colorlinks=true]{hyperref}
+\hypersetup{
+    linkcolor=blue,         % color of internal links
+    citecolor=black,         % color of citation links
+    urlcolor=blue           % color of URL links
+}
+\usepackage{filecontents}
+\usepackage{geometry}
+\geometry{left=3cm, top=1cm, right=3cm, bottom=2cm} 
+
+% \address{Dylan Lawless@kispi.uzh.ch\\
+% Department of Intensive\\
+% Care and Neonatology,\\
+% University Children's\\
+% Hospital Zürich,\\
+% University of Zürich.
+% }
+\signature{Dylan Lawless, PhD} 
+
+\begin{document} 
+\raggedright
+\begin{letter}{Dear Reviewers,}
+
+% Re: Reply to Reviewer of manuscript entitled ``Archipelago method for variant set association test statistics''
+
+\opening{}
+
+We thank you sincerely for your thoughtful and constructive comments on our manuscript.
+
+We agree fully with your suggestions and believe that the revisions have substantially improved the manuscript.
+
+
+\noindent\rule{\textwidth}{0.4pt}
+
+\textbf{Reviewer: 1}
+
+%Comments to the Author
+% 1.General comments:
+%The manuscript "Application of qualifying variants for genomic analysis" presents a thoughtful and well-motivated framework for treating qualifying variants (QVs) as standalone, structured, and reusable elements in genomic analysis pipelines. The authors clearly address the limitations of current QV filtering approaches and convincingly demonstrate that decoupling QV criteria from pipeline code improves clarity, reproducibility, and interdisciplinary communication. The proposed YAML-based implementation is practical, aligns well with FAIR principles, and is validated in a rare disease cohort where it matches conventional methods. The paper is well-written and includes a detailed discussion of the results. There is an opportunity to further discuss how this framework could enhance the traceability and transparency of variant interpretation in clinical and research settings. I have some comments below to suggest improvements for the manuscript.
+
+\textbf{Major comments:}
+
+% The authors describe how the QV YAML file and its unique identifier enable traceability of variant interpretation. To make this clearer, the authors could include a concrete example illustrating how a clinician or analyst would use the QV set ID to retrieve the exact criteria applied to a reported variant—for example, during audit, re-analysis, or regulatory review.
+ 
+\textit{\textbf{1.} The reviewer requested a clear example showing how a clinician or analyst would use the QV set ID to retrieve the exact criteria applied, for audit, re-analysis, or regulatory review.}
+
+\textbf{Response:} We added a concrete example in the Implications section. It now explains how a clinician using EPIC or another EHR system can access a patient’s analysis results linked to their specific QV set ID, retrieving the corresponding YAML or JSON file from an institutional or DOI-linked repository. The example illustrates how a report referencing a QV ID confirms that ACMG v3.3 criteria, including BRCA1/2 breast cancer screening and associated thresholds, were applied, demonstrating practical traceability for audit.
+
+% The validation is limited to ACMG criteria in a rare disease cohort. Testing the framework in other contexts (e.g., GWAS, polygenic risk scores, structural variant analyses) would help demonstrate its generalizability.
+
+\textit{\textbf{2.} The reviewer requested broader validation across different datasets and use cases.}
+
+\textbf{Response:} We have expanded the validation to three distinct use cases covering major analysis types and tools. In addition to (1) the existing in-house rare disease WES cohort (940 individuals), we now include (2) a GWAS using HapMap Phase 3 on 1,397 individuals and (3) a WGS trio analysis using the Genome in a Bottle reference from NIST with Exomiser. These are presented in the Methods/Results section and illustrated in Figures S1-S3.
+
+% It would be helpful to include some discussion or benchmarking of the computational overhead (if any) and scalability of using YAML-based QVs compared to hard-coded scripts.
+
+\textit{\textbf{3.} The reviewer requested benchmarking of computational overhead and scalability when using YAML-based QV files versus the traditional approach.}
+
+\textbf{Response:} We added a dedicated computational benchmark section with a new figure. The supplemental result and Figure S4 shows that preprocessing times were effectively identical between traditional and YAML-based workflows, with a small median improvement in favour of the QV YAML approach. This confirms that YAML-based QV files introduce no computational overhead and scale equivalently to conventional implementations.
+
+% The authors highlight the potential of including Public and Patient Involvement and Engagement (PPIE) fields in the QV files. However, it would be helpful to provide an example of how patient preferences were recorded and how they influenced an analysis or report.
+
+\textit{\textbf{4.} The reviewer requested a clear example of how patient preferences and PPIE input are recorded in QV files and influence reporting.}
+
+\textbf{Response:} We added explicit examples in ``Example QV structure'', showing patient context and PPIE  review notes. In ``FAIR mapping and patient involvement'', we explain how such inputs can be collected through consent-linked forms or patient/public review groups within the same FAIR-compliant file. Broader implications are discussed in ``Traceability and confirmation of applied clinical standards''.
+
+
+\textbf{Minor comments:}
+
+\textbf{5.} The reviewer noted minor typographical and grammatical errors. We have now carefully reviewed and corrected the full manuscript for grammar, spelling, and typographical consistency.
+
+\textbf{6.} The reviewer noted that, in addition to Box 1, readers unfamiliar with YAML may benefit from a brief explanation of its syntax and structure. We have revised the Implementation section to include a concise description of the logic immediately before the example box. The updated text explains that QV files use simple key=value statements to define filters, criteria, and metadata, making the content clear even for readers without prior experience.
+
+\noindent\rule{\textwidth}{0.4pt}
+
+\textbf{Reviewer: 2}
+%
+%Comments to the Author
+
+\textit{\textbf{1.} ``The authors propose a framework to apply and combine different filtering sets to identify qualifying variants for genomic analysis. While this approach might be convenient, I think it lacks novelty as various analysis tools offer user-friendly filtering approaches (e.g. VarFish). Please find my major comments below. I would appreciate a more extensive description of the gap that this framework is filling.''}
+
+\textbf{Response:} We appreciate this comment and recognise that our earlier presentation may have led to a misunderstanding of where the novelty of our framework lies. We have clarified this point in the revised manuscript.
+
+Tools such as VarFish are essential for variant interpretation, and our framework is designed to work alongside them rather than replace them. The QV framework serves a distinct role: it externalises key filtering rules and thresholds from pipelines into a simple, portable format that any analysis tool can use.
+
+For example, one team may use VarFish, another GATK with Exomiser, and a third DeepVariant with VEP and SnpEff in Snakemake. Each can retain its preferred software stack, yet by sharing a single public QV file, all apply identical criteria. This ensures reproducibility and transparency without requiring shared implementations.
+
+While sharing a Docker container or complete workflow allows full technical replication, it is not always practical when institutional or commercial environments must retain internal infrastructure. The QV framework achieves reproducibility at the level of analytic logic, making analyses transferable, auditable, and interoperable between systems.
+
+\textit{\textbf{2.} ``The chapter regarding implementation lacks technical clarity, i.e. how is the framework implemented, which input does it require, which is the output, etc.''}
+
+\textbf{Response:} We have thoroughly revised the implementation section to describe these points explicitly, outlining how QV files are read, which parameters they define, and how they integrate into existing analysis pipelines.
+
+\textit{\textbf{3.} ``The authors mention that their criteria are aligned with FAIR principles. Could they elaborate on this and justify this statement?''}
+
+\textbf{Response:} We have added a dedicated section titled ``FAIR mapping ...'' describing the technical alignment with FAIR principles, including identifiers, accessibility, interoperability, and reusability. The practical implications of FAIR compliance are further discussed in ``Implications - Traceability and confirmation of applied clinical standards''.
+
+\textit{\textbf{4.} ``The validation study showcases the agreement with hard-coded criteria for one example data set. Could the authors add a more comprehensive comparison by extending the validation study to different data sets and use cases?''}
+
+\textbf{Response:} We have expanded the validation to three distinct use cases covering major analysis types and tools. In addition to (1) the existing in-house rare disease WES cohort (940 individuals), we now include (2) a GWAS using HapMap Phase 3 on 1,397 subjects and (3) a WGS trio analysis using the Genome in a Bottle reference from NIST with Exomiser. These are presented in the Methods/Results section and illustrated in Figures S1-S3.
+
+\textit{\textbf{5.} ``Can users specify their own filtering criteria for QVs and save them as a QV set? Can the authors showcase how to do that?''}
+
+\textbf{Response:} Yes, users can fully define and save their own filtering criteria as QV sets. We have clarified this in the revised ``Implementation'' section, which now explains the process step by step, includes an example QV file structure (Box 1) with both technical and plain-language descriptions. We have also included an HTML-based QV builder that enables researchers and commercial users to create and export their own QV sets. It can be used as a standalone tool or easily embedded into existing websites.
+
+\noindent\rule{\textwidth}{0.4pt}
+
+We thank you again for your valuable feedback and hope you will agree that the manuscript has been strengthened considerably through your recommendations.
+
+\closing{Yours sincerely,\\
+On behalf of all authors,}
+
+\end{letter}
+\end{document}
+
+%\cc{Cclist} 
+%\ps{adding a postscript} 
+%\encl{list of enclosed material} 
+%\vfill
+%\printbibliography[heading=none]
