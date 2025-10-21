@@ -1,10 +1,12 @@
+# Application of qualifying variants for genomic analysis
+
 **This repo contains only manuscript files. For the code and data used in this study see the public Zenodo repository.**
+
+---
 
 Qualifying Variants (QVs) are defined, versioned criteria that determine which genomic alterations are included in an analysis. Rather than being hidden as code-level filters, QVs are externalised into human- and machine-readable YAML or JSON files that specify the exact rules applied, such as allele frequency thresholds, gene panels, or pathogenicity classifications. This makes analyses transparent, reproducible, and auditable across tools, studies, and institutions. QVs function as a common reference layer that links the technical and interpretive logic of variant analysis, ensuring that every decision in a genomic workflow is explicit, traceable, and aligned with FAIR data principles.
 
-# Application of qualifying variants for genomic analysis
-
-## how to build a QV file
+## How to build a QV file
 
 We recommend YAML or JSON for portability and adoption. You can build a QV in three ways:
 
@@ -141,13 +143,7 @@ JSON equivalent of the minimal example:
 }
 ```
 
-### validate, checksum, and register
-
-Validate against the schema:
-
-```bash
-python scripts/yaml_validate.py qv/examples/qv_disease_panel_v1_20250828.yaml qv/schemas/qv.schema.json
-```
+### Checksum, and register
 
 Record the checksum:
 
@@ -174,31 +170,12 @@ Point your pipeline to the QV file:
 
 ```yaml
 # workflows/.../config.yaml
-qv_file: "../../qv/examples/qv_disease_panel_v1_20250828.yaml"
+qv_file: ".../qv/registry/qv_disease_panel_v1_20250828.yaml"
 ```
 
-Run Snakemake:
+It can be read programmatically at runtime, for example using `yq` in shell-based workflows or `yaml::read\_yaml()` in R, providing the same parameters that would otherwise be embedded within pipeline configurations
 
-```bash
-snakemake -j 8 --use-conda
-```
-
-## repository layout
-
-```
-qv/          # QV examples, schema, registry
-builder/     # HTML QV builder (see Zenodo for public copy)
-workflows/   # WES, GWAS, WGS trio pipelines
-scripts/     # validation, md5 compare, plotting
-```
-
-## data availability
-
-* Code: [https://github.com/DylanLawless/qv2025lawless](https://github.com/DylanLawless/qv2025lawless)
-* QV builder and example sets: Zenodo (add DOI)
-* Some inputs require controlled access. See `data/input/README.md`.
-
-## citing
+## Citing
 
 Application of qualifying variants for genomic analysis
 
@@ -206,16 +183,16 @@ Dylan Lawless, Ali Saadat, Mariam Ait Oumelloul, Simon Boutry, Veronika Stadler,
 
 doi: https://doi.org/10.1101/2025.05.09.25324975
 
-## licence
+## Licence
 
 MIT. See `LICENSE`.
 
-## contact
+## Contact
 
 [Dylan.Lawless@kispi.uzh.ch](mailto:Dylan.Lawless@kispi.uzh.ch)
 
 
-## future directions
+## Future directions
 
 Qualifying Variants (QVs) can be formalised as computational entities representing defined sets of genomic variants on which mathematical operations can be performed. Conceptually, QV sets function as measurable subsets of the theoretical variant space, enabling equations that link observed and unobserved genomic evidence. In statistical genetics, this allows analytical models such as logistic regression or kernel-based tests to incorporate QV-based terms, denoted ( G_{\text{QV}} ), to quantify effects derived from specific variant sets. Beyond simple filtering, QV sets provide a structured foundation for Bayesian and likelihood-based inference, allowing estimation of true positives, false negatives, and unobserved variants through relations such as ( \text{TP} = \text{QV}_{ax} \cap \text{QV}*1 ) and ( \text{FN} = \text{QV}*{ax} \setminus \text{QV}_1 ). This mathematical framing elevates QVs from practical workflow components to theoretical units in computational genetics, capable of supporting formal reasoning, uncertainty quantification, and integration into advanced probabilistic and multi-omic models.
 
