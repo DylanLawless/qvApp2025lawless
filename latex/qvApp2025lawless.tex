@@ -52,7 +52,7 @@ Our aim is to embed the concept of a ``QV'' into the genomic analysis vernacular
 \\[1ex]
 \noindent
 \textbf{Availability:} \\[1ex]
-The source code and data are accessible at  \url{} the Zenodo repository.
+The source code and data are accessible at the Zenodo repository \url{https://doi.org/10.5281/zenodo.17414191}.
 Manuscript files are available at \url{https://github.com/DylanLawless/qvApp2025lawless}.
 The QV framework is available under the MIT licence, and the dataset will be maintained for at least two years following publication.
 \end{abstract}
@@ -255,7 +255,6 @@ The YAML criteria included \texttt{ACMG\_PS1} (known pathogenic amino acid chang
 
 \subsection{Usage in a GWAS validation study}
 We next applied the \ac{qv} criteria framework to a \ac{gwas} using HapMap3 Phase 3 (R3) consensus genotypes on 1397 individuals \cite{2020fairleyInternationalGenomeSample}. Again, two pipelines were executed with identical inputs and parameters: one hard-coded and one driven by the \ac{qv}  file.
-%``qv\_gwas\_common\_v1\_20250826.yaml'' (Zenodo). 
 This \ac{qv}  set defined common GWAS thresholds: restriction to autosomal, biallelic SNPs; minimum sample call rate of $95\%$; variant call rate of $95\%$; minor allele frequency $\geq 1\%$; and Hardy–Weinberg equilibrium $p \geq 1\times10^{-6}$. After quality control, variants were LD-pruned and principal components (PC1–PC10) were computed, with sex included as an additional covariate. Logistic regression under an additive model was then performed with a binary simulated phenotype using PLINK.
 The outputs of the two pipelines were captured and compared across each main PLINK stage. Manhattan plots, \ac{pca} plots, and \texttt{md5} checksums were used to confirm exact reproducibility between the hard-coded and QV-driven analyses.
 
@@ -376,5 +375,130 @@ Runtime performance was equivalent between traditional and \ac{qv}-based pipelin
 \caption{Benchmark of upstream preprocessing times in the WGS trio pipeline comparing \ac{qv}-based and traditional (manually parameterised) configurations. Stepwise elapsed times were nearly identical across both methods (median difference \textasciitilde0.5~s), with a fixed 5~s overhead from optional Singularity initialisation of \texttt{yq} in the \ac{qv} pipeline. The four preprocessing steps correspond to: (1) gene panel region and quality filtering of the trio VCF, (2) annotation of variant tags, (3) site-level depth range filtering, and (4) per-sample genotype filtering and exclusion of missing genotypes. All steps used \texttt{BCFtools} on VCF preprocessing, as illustrated in \textbf{Figure~\ref{fig:qv_exomiser_validation} (A)}.}
 \label{fig:benchmark_preprocess_time_bars_by_step_elapsed}
 \end{figure}
+
+
+
+\subsection{How to build a QV file}
+
+We recommend YAML or JSON for portability and adoption. You can build a QV in three ways:
+
+\subsubsection*{Option 1: use the HTML QV builder (Zenodo)}
+\begin{enumerate}
+\item Open the HTML builder from the Zenodo repository.
+\item Enter simple \texttt{key=value} statements in the left pane.
+\item Copy or download the generated YAML.
+\end{enumerate}
+
+\noindent Example input lines:
+\begin{verbatim}
+meta qv_set_id="qv_gwas_common_v1_20250827"
+meta version="1.0.0"
+meta title="GWAS common QC"
+meta authors=Alice,Bob
+meta tags=GWAS,QC,PCA
+filter maf_minimum field=MAF operator=">=" value=0.01 desc="Minimum MAF"
+filter hwe field=HWE_P operator=">=" value=1e-6 logic=keep_if
+filter region_include desc="include panel" field=OVERLAP(targets.exome.bed) 
+    >>>> operator=">=" value=1 logic=keep_if
+criteria disease_panel logic=and desc="HIGH impact within panel"
+criteria disease_panel field=IMPACT operator="==" value=HIGH
+criteria disease_panel field=OVERLAP(targets.exome.bed) operator=">=" value=1
+meta description_patient=
+    >>>> "There is a strong family history of early heart attacks."
+meta description_ppie=
+    >>>> "The PPIE group reviewed and approved the criteria on 2025-08-15."
+\end{verbatim}
+
+\subsubsection*{Option 2: write YAML by hand}
+Minimal pattern:
+\begin{verbatim}
+meta:
+  qv_set_id: qv_disease_panel_v1_20250828
+  version: 1.0.0
+  title: Disease panel filter
+filters:
+  region_include:
+    description: Restrict to curated disease gene panel
+    logic: keep_if
+    field: OVERLAP(targets.disease_panel.bed)
+    operator: ">="
+    value: 1
+criteria:
+  pathogenic:
+    description: Variant classified as pathogenic or likely pathogenic
+    logic: and
+    conditions:
+      - group: any_of:start
+      - { field: CLASS, operator: "==", value: P }
+      - { field: CLASS, operator: "==", value: LP }
+      - group: any_of:end
+notes:
+  - Gene panel file defines the target regions
+\end{verbatim}
+
+\subsubsection*{Option 3: write JSON}
+JSON equivalent of the minimal example:
+\begin{verbatim}
+{
+  "meta": {
+    "qv_set_id": "qv_disease_panel_v1_20250828",
+    "version": "1.0.0",
+    "title": "Disease panel filter"
+  },
+  "filters": {
+    "region_include": {
+      "description": "Restrict to curated disease gene panel",
+      "logic": "keep_if",
+      "field": "OVERLAP(targets.disease_panel.bed)",
+      "operator": ">=",
+      "value": 1
+    }
+  },
+  "criteria": {
+    "pathogenic": {
+      "description": "Variant classified as pathogenic or likely pathogenic",
+      "logic": "and",
+      "conditions": [
+        { "group": "any_of:start" },
+        { "field": "CLASS", "operator": "==", "value": "P" },
+        { "field": "CLASS", "operator": "==", "value": "LP" },
+        { "group": "any_of:end" }
+      ]
+    }
+  },
+  "notes": [
+    "Gene panel file defines the target regions"
+  ]
+}
+\end{verbatim}
+
+\subsubsection*{Checksum and register}
+
+Record the checksum and  register the release:
+
+\begin{verbatim}
+sha256sum qv/examples/qv_disease_panel_v1_20250828.yaml
+\end{verbatim}
+
+\begin{verbatim}
+# qv/registry/releases.csv
+qv_set_id, version, checksum, file, date
+qv_disease_panel_v1_20250828,1.0.0, ef6cf810b994..., 
+    > qv_disease_panel_v1_20250828.yaml, 2025-08-28
+\end{verbatim}
+
+\subsubsection*{Versioning and IDs}
+Use a stable \texttt{qv\_set\_id} plus semantic version.  
+Update the version on any change that affects selection or interpretation.  
+Keep one file per release and never mutate published files.
+
+\subsubsection*{Use in a workflow}
+Point your pipeline to the QV file:
+\begin{verbatim}
+# workflows/.../config.yaml
+qv_file: ".../qv/registry/qv_disease_panel_v1_20250828.yaml"
+\end{verbatim}
+
+It can be read programmatically at runtime, for example using \texttt{yq} in shell-based workflows or \texttt{yaml::read\_yaml()} in R, providing the same parameters that would otherwise be embedded within pipeline configurations.
 
 \end{document}

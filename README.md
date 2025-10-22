@@ -1,6 +1,6 @@
 # Application of qualifying variants for genomic analysis
 
-**This repo contains only manuscript files. For the code and data used in this study see the public Zenodo repository.**
+**This repo contains only manuscript files. For the code and data used in this study see the public Zenodo repository** <https://doi.org/10.5281/zenodo.17414191>
 
 ---
 
